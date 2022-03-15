@@ -7,11 +7,21 @@ const faker = require ("faker")
 app.use('/dist', express.static(path.join(__dirname, 'dist')));
 app.get('/', (req, res)=> res.sendFile(path.join(__dirname, 'index.html')));
 
-app.get('/api/games/:id', async(req, res, next)=>{
+// app.get('/api/games/:id', async(req, res, next)=>{
+//     try{
+//         res.send(await Game.findByPk(req.params.id, {
+//             include: Company
+//         }))
+//     }catch(err){
+//         next(err)
+//     }
+// })
+
+app.delete('/api/games/:id', async(req, res, next)=>{
     try{
-        res.send(await Game.findByPk(req.params.id, {
-            include: Company
-        }))
+        const destroyed = await Game.findByPk(req.params.id)
+        await destroyed.destroy()
+        res.sendStatus(204)
     }catch(err){
         next(err)
     }
@@ -20,7 +30,9 @@ app.get('/api/games/:id', async(req, res, next)=>{
 app.post('/api/games', async(req, res, next)=>{
     try{
         await randomGame()
-        res.send(await Game.findAll())
+        res.send(await Game.findAll({
+            include: Company
+        }))
     }catch(err){
         next(err)
     }
